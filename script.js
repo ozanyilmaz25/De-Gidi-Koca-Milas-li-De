@@ -3,7 +3,6 @@
 // Milas Köy Bulma Oyunu
 // Bölüm 1
 // ======================================
-
 // -------------------------------
 // HTML Elemanları
 // -------------------------------
@@ -13,10 +12,8 @@ const soruYazi = document.getElementById("soru");
 const mesaj = document.getElementById("mesaj");
 const sureYazi = document.getElementById("sure");
 const soruNoYazi = document.getElementById("soruNo");
-
 const baslatBtn = document.getElementById("baslatBtn");
 const yenidenBtn = document.getElementById("yenidenBtn");
-
 const oyunSonu = document.getElementById("oyunSonu");
 const finalPuan = document.getElementById("finalPuan");
 const tekrarBtn = document.getElementById("tekrarBtn");
@@ -27,24 +24,17 @@ const tekrarBtn = document.getElementById("tekrarBtn");
 
 let map;
 let geojsonLayer;
-
 let tumKoyler = [];
-
 let aktifKoy = null;
-
 let sorulmayanKoyler = [];
-
 let puan = 0;
 let soruNo = 1;
-
 let oyunBasladi = false;
-
-let kalanSure = 60;
-
+let kalanSure = 800;
 let timer = null;
-
 let dogruSayisi = 0;
 let yanlisSayisi = 0;
+let sonYanlisLayer = null; // Yanlış bilinen köyü hafızada tutmak için
 let dogrulukYuzdesi = 0;
 
 // -------------------------------
@@ -188,7 +178,12 @@ fetch("KOY.geojson")
 // -------------------------------
 
 function yeniSoru() {
-
+    // --- YENİ EKLEME: Yeni soruya geçince önceki yanlış köyün stilini sıfırla ---
+    if (sonYanlisLayer) {
+        geojsonLayer.resetStyle(sonYanlisLayer);
+        sonYanlisLayer = null;
+    }
+    // --------------------------------------------------------------------------
     if (sorulmayanKoyler.length === 0) {
 
         oyunBitir();
@@ -210,8 +205,6 @@ function yeniSoru() {
     soruNoYazi.innerHTML = soruNo;
 
 }
-
-
 // -------------------------------
 // Oyunu Başlat
 // -------------------------------
@@ -220,7 +213,7 @@ function oyunuBaslat() {
 
     puan = 0;
     soruNo = 1;
-    kalanSure = 60;
+    kalanSure = 800;
     dogruSayisi = 0;
     yanlisSayisi = 0;
     dogrulukYuzdesi = 0;
@@ -328,31 +321,36 @@ layer.setStyle({
         },1000);
 
     } else {
-
         // Yanlış cevap
-
         mesaj.innerHTML = "❌ Yanlış Köy";
         yanlisSayisi++;
 
+        // Eğer daha önce başka bir yanlış yapıldıysa onu temizle (üst üste binmesin diye)
+        if (sonYanlisLayer) {
+            geojsonLayer.resetStyle(sonYanlisLayer);
+        }
+
+        // Tıklanan yanlış köyü hafızaya alıyoruz
+        sonYanlisLayer = layer;
+
+        // Yanlış köyü çok belirgin yapıyoruz (Kıpkırmızı ve kalın çizgili)
         layer.setStyle({
-
-            color:"#ff0000",
-            fillColor:"#ff0000",
-            fillOpacity:0.45,
-            weight:4
-
+            color: "#ff0000",      // Çizgi rengi net kırmızı
+            fillColor: "#ff0000",  // İç dolgusu kırmızı
+            fillOpacity: 0.70,     // İçini bayağı belirginleştiriyoruz (%70 görünürlük)
+            weight: 6,             // Çizgi kalınlığı normalin 3 katı
+            dashArray: "5, 5"      // Çizgileri kesik kesik yaparak dikkat çekmesini sağlıyoruz
         });
 
-        setTimeout(function(){
+        // Fare üzerinden çekilince eski haline dönme efektini bu köy için GEÇİCİ olarak kapatıyoruz
+        layer.off("mouseout", hoverBitis);
 
-            geojsonLayer.resetStyle(layer);
-
-        },800);
-
+        // 1 saniye sonra bir sonraki soruya otomatik geçiş (mevcut mantığı koruyoruz)
+        setTimeout(function () {
+            soruNo++;
+            yeniSoru();
+        }, 1000);
     }
-
-}
-
 // -------------------------------
 // Sayaç
 // -------------------------------
