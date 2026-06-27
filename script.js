@@ -264,61 +264,48 @@ tekrarBtn.addEventListener("click", function () {
 // -------------------------------
 // Köy Kontrolü
 // -------------------------------
-
 function koyKontrol(feature, layer) {
-
     if (!aktifKoy) return;
 
     const secilenKoy = feature.properties.AD;
 
     if (secilenKoy === aktifKoy.ad) {
-
         // Doğru cevap
-
         puan += 10;
         dogruSayisi++;
+        
         // Köy tekrar tıklanamasın
         layer.off("click");
 
         puanYazi.innerHTML = puan;
-
         mesaj.innerHTML = "✅ Doğru Cevap";
 
-        // 1. Önce yazı (Tooltip) ayarını yapıp bitiriyoruz
-layer.bindTooltip("✔ Bulundu", {
-    permanent: true,
-    direction: "center",
-    className: "bulunduEtiket"
-});
+        // Önce Tooltip'i bağlıyoruz
+        layer.bindTooltip("✔ Bulundu", {
+            permanent: true,
+            direction: "center",
+            className: "bulunduEtiket"
+        });
 
-// 2. Sonra sadece renklendirme stilini uyguluyoruz
-layer.setStyle({
-    color: "#00ff00",
-    fillColor: "#00ff00",
-    fillOpacity: 0.40,
-    weight: 4
-});
+        // Sonra stili değiştiriyoruz
+        layer.setStyle({
+            color: "#00ff00",
+            fillColor: "#00ff00",
+            fillOpacity: 0.40,
+            weight: 4
+        });
 
         setTimeout(function () {
-
-            
             layer.setStyle({
-
-    color:"#00aa00",
-    fillColor:"#00ff00",
-    fillOpacity:0.55,
-    weight:3
-
-});
-
-// Artık resetStyle yok.
-// Köy oyun sonuna kadar yeşil kalacak.
+                color: "#00aa00",
+                fillColor: "#00ff00",
+                fillOpacity: 0.55,
+                weight: 3
+            });
 
             soruNo++;
-
             yeniSoru();
-
-        },1000);
+        }, 1000);
 
     } else {
         // Yanlış cevap
@@ -351,102 +338,54 @@ layer.setStyle({
             yeniSoru();
         }, 1000);
     }
+}
+
 // -------------------------------
 // Sayaç
 // -------------------------------
-
-function zamanlayici(){
-
+function zamanlayici() {
     clearInterval(timer);
-
-    timer = setInterval(function(){
-
+    timer = setInterval(function () {
         kalanSure--;
-
         sureYazi.innerHTML = kalanSure;
 
-        if(kalanSure<=0){
-
+        if (kalanSure <= 0) {
             clearInterval(timer);
-
             oyunBitir();
-
         }
-
-    },1000);
-
+    }, 1000);
 }
 
 // -------------------------------
 // Oyun Bitir
 // -------------------------------
-
-function oyunBitir(){
-
-    oyunBasladi=false;
-
+function oyunBitir() {
+    oyunBasladi = false;
     clearInterval(timer);
 
-    let toplam=dogruSayisi+yanlisSayisi;
-
-    if(toplam>0){
-
-        dogrulukYuzdesi=
-        Math.round((dogruSayisi/toplam)*100);
-
-    }
-    else{
-
-        dogrulukYuzdesi=0;
-
+    let toplam = dogruSayisi + yanlisSayisi;
+    if (toplam > 0) {
+        dogrulukYuzdesi = Math.round((dogruSayisi / toplam) * 100);
+    } else {
+        dogrulukYuzdesi = 0;
     }
 
-    soruYazi.innerHTML="🎉 Oyun Tamamlandı";
-
-    finalPuan.innerHTML=puan;
-
+    soruYazi.innerHTML = "🎉 Oyun Tamamlandı";
+    finalPuan.innerHTML = puan;
     oyunSonu.classList.remove("gizli");
 
-    oyunSonu.querySelector(".popup").innerHTML=`
-
+    oyunSonu.querySelector(".popup").innerHTML = `
         <h2>🏆 Oyun Bitti</h2>
-
         <h1>${puan} Puan</h1>
-
         <hr>
-
         <p>✅ Doğru : <b>${dogruSayisi}</b></p>
-
         <p>❌ Yanlış : <b>${yanlisSayisi}</b></p>
-
         <p>🎯 Başarı : <b>%${dogrulukYuzdesi}</b></p>
-
         <br>
-
-        <button id="yenidenOyna">
-
-        Tekrar Oyna
-
-        </button>
-
+        <button id="yenidenOyna">Tekrar Oyna</button>
     `;
 
-    document
-    .getElementById("yenidenOyna")
-    .onclick=function(){
-
+    document.getElementById("yenidenOyna").onclick = function () {
         location.reload();
-
     };
-
 }
-
-// -------------------------------
-// Tekrar Oyna
-// -------------------------------
-
-tekrarBtn.addEventListener("click",function(){
-
-    location.reload();
-
-});
