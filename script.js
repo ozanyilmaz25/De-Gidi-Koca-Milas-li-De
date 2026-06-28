@@ -38,12 +38,13 @@ let tiklamaKilitli = false;
 let bilinenKoylerListesi = [];   
 let bilinemeyenKoylerListesi = []; 
 
-// --- WEB AUDIO API ---
+// --- WEB AUDIO API DEĞİŞKENLERİ ---
 let audioCtx = null;
 let source = null;
 let filterNode = null;
 let musicGainNode = null; 
 
+// ⏱️ Saniyeyi Dakika:Saniye (00:00) Formatına Çeviren Yardımcı Fonksiyon
 function sureFormatla(saniye) {
     let dk = Math.floor(saniye / 60);
     let sn = saniye % 60;
@@ -53,6 +54,7 @@ function sureFormatla(saniye) {
     return dk + ":" + sn;
 }
 
+// Sesi işlemek ve bası/tizi bozabilmek için filtre katmanı oluşturuyoruz
 function sesSisteminiKur() {
     try {
         if (audioCtx) return; 
@@ -72,10 +74,11 @@ function sesSisteminiKur() {
         musicGainNode.connect(filterNode);
         filterNode.connect(audioCtx.destination);
     } catch (e) {
-        console.log("Ses sistemi başlatılamadı, oyun sese bağımlı olmadan devam ediyor:", e);
+        console.log("Ses sistemi kurulurken bir hata oluştu, oyun sese bağımlı olmadan devam ediyor:", e);
     }
 }
 
+// RETRO DOĞRU CEVAP SES EFEKTİ ÜRETİCİSİ
 function playRetroWinSound() {
     if (!audioCtx) return;
     try {
@@ -109,14 +112,14 @@ function playRetroWinSound() {
             }
         }, 450);
     } catch(e) {
-        console.log("Efekt sesi çalınamadı:", e);
+        console.log("Retro ses çalınamadı:", e);
     }
 }
 
 // Haritayı Oluştur
 map = L.map("map", { zoomControl: true }).setView([37.32, 27.78], 10);
 
-// Uydu Haritası (Esri)
+// Uydu Haritası
 L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
     maxZoom: 20,
     attribution: "© Esri"
@@ -165,7 +168,7 @@ fetch("KOY.geojson")
     })
     .catch(err => {
         console.error(err);
-        if (soruYazi) soruYazi.innerHTML = "❌ KOY.geojson yüklenemedi! Lütfen projeyi VS Code Live Server ile açtığınızdan emin olun.";
+        if (soruYazi) soruYazi.innerHTML = "❌ KOY.geojson yüklenemedi! Sunucu (Live Server) kullanıp kullanmadığınızı kontrol edin.";
     });
 
 function yeniSoru() {
@@ -205,14 +208,14 @@ function oyunuBaslat() {
     if (bgMusic) {
         try {
             bgMusic.volume = 0.3; 
-            bgMusic.playbackRate = 1.0; 
+            bgMusic.playbackRate = 1.0; // Oyun başında müzik normal hızda başlar
             if (filterNode) filterNode.frequency.setValueAtTime(20000, audioCtx.currentTime); 
             if (musicGainNode) musicGainNode.gain.setValueAtTime(1.0, audioCtx.currentTime);
             bgMusic.play().catch(error => {
-                console.log("Müzik otomatik oynatma engeline takıldı:", error);
+                console.log("Müzik çalma engellendi:", error);
             });
         } catch(e) {
-            console.log("Müzik başlatılamadı:", e);
+            console.log("Müzik oynatılamadı:", e);
         }
     }
 
@@ -297,19 +300,20 @@ function koyKontrol(feature, layer) {
         yanlisSayisi++;
         puanYazi.innerHTML = puan;
 
+        // YANLIŞ CEVAPTA SES AYARLARI (GÜNCELLENDİ)
         if (bgMusic && filterNode && audioCtx) {
             try {
-                bgMusic.playbackRate = 0.95; 
-                filterNode.frequency.setValueAtTime(800, audioCtx.currentTime);
-                if (musicGainNode) musicGainNode.gain.setValueAtTime(0.9, audioCtx.currentTime);
+                // Yavaşlama ayarı tamamen kaldırıldı (playbackRate 1.0 olarak sabit tutuluyor)
+                bgMusic.playbackRate = 1.0; 
+                
+                // Ses tamamen gitmesin diye frekans sınırını 1200 Hz yaptık (Çok hafif, tatlı bir boğukluk)
+                filterNode.frequency.setValueAtTime(1200, audioCtx.currentTime); 
                 
                 setTimeout(() => {
-            if(bgMusic) bgMusic.playbackRate = 1.0;
-            if (filterNode) filterNode.frequency.exponentialRampToValueAtTime(20000, audioCtx.currentTime + 0.25);
-            if (musicGainNode) musicGainNode.gain.linearRampToValueAtTime(1.0, audioCtx.currentTime + 0.25); // Sesi eski haline getir
-        }, 1200); // 1.2 saniye sonra düzelsin
-    } catch(e){}
-}
+                    if (filterNode) filterNode.frequency.exponentialRampToValueAtTime(20000, audioCtx.currentTime + 0.25);
+                }, 1000); 
+            } catch(e){}
+        }
 
         if (efektKatmani && oyunAlani) {
             efektKatmani.classList.add("flash-yanlis-aktif");
