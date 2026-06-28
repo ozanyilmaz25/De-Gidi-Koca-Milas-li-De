@@ -7,11 +7,9 @@
 
     <title>De Gidi Goca Milas De</title>
 
-    <!-- Leaflet -->
     <link rel="stylesheet"
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
-    <!-- CSS -->
     <link rel="stylesheet" href="style.css">
 
 </head>
@@ -22,7 +20,6 @@
 
 <div id="oyun">
 
-    <!-- Üst Bilgi Paneli -->
     <header id="ustPanel">
 
         <div class="logo">
@@ -51,7 +48,6 @@
 
     </header>
 
-    <!-- Soru -->
     <section id="soruPanel">
 
         <h2 id="soru">
@@ -60,10 +56,8 @@
 
     </section>
 
-    <!-- Harita -->
     <div id="map"></div>
 
-    <!-- Alt Panel -->
     <footer id="altPanel">
 
         <button id="baslatBtn">
@@ -82,8 +76,6 @@
 
 </div>
 
-<!-- Oyun Sonu Penceresi -->
-
 <div id="oyunSonu" class="gizli">
 
     <div class="popup">
@@ -99,20 +91,18 @@
         </h1>
 
         <button id="tekrarBtn">
-            Tekrar Oyna
+            🔄 Yeniden Başlat
         </button>
 
     </div>
 
 </div>
 
-    <audio id="bgMusic" loop src="Big In Japan bağlama cover.mp3"></audio>
+<audio id="bgMusic" src="muzik.mp3" loop preload="auto"></audio>
 
-
-<!-- Leaflet -->
+<script href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- JavaScript -->
 <script src="script.js"></script>
 
 </body>
