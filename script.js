@@ -379,6 +379,58 @@ function oyunBitir() {
     let toplamTiklama = dogruSayisi + yanlisSayisi;
     dogrulukYuzdesi = toplamTiklama > 0 ? Math.round((dogruSayisi / toplamTiklama) * 100) : 0;
 
+    // --- GELİŞMİŞ SKOR TABLOSU SİSTEMİ ---
+    // Oyuncudan isim alıyoruz (Boş bırakırsa Misafir atanır)
+    let oyuncuAdi = prompt("Muazzam performans! Skor tablosuna kaydetmek için adınızı yazın:", "Oyuncu");
+    if (!oyuncuAdi || oyuncuAdi.trim() === "") {
+        oyuncuAdi = "Misafir";
+    }
+
+    // Hakkı biten (hiç bilemediği) köy sayısını hesaplıyoruz
+    let bilemedigiKoySayisi = bilinemeyenKoylerListesi.length;
+
+    // Mevcut skorları yerel hafızadan (localStorage) çekiyoruz
+    let skorlar = JSON.parse(localStorage.getItem("milas_koy_skorlar_v2")) || [];
+    
+    // Yeni skor kaydını oluşturuyoruz
+    const yeniSkor = {
+        isim: oyuncuAdi.substring(0, 15), // Maksimum 15 karakter
+        toplamPuan: puan,
+        dogruKoy: dogruSayisi,
+        yanlisKoy: bilemedigiKoySayisi,
+        tarih: new Date().toLocaleDateString('tr-TR')
+    };
+    skorlar.push(yeniSkor);
+
+    // Skorları puana göre büyükten küçüğe sıralıyoruz
+    skorlar.sort((a, b) => b.toplamPuan - a.toplamPuan);
+    
+    // Tabloda kalabalık yapmaması için sadece en iyi 5 skoru tutuyoruz
+    skorlar = skorlar.slice(0, 5);
+
+    // Güncel listeyi kalıcı olarak tarayıcıya kaydediyoruz
+    localStorage.setItem("milas_koy_skorlar_v2", JSON.stringify(skorlar));
+
+    // Skor tablosunun HTML yapısını oluşturuyoruz
+    let leaderboardHtml = skorlar.map((skor, index) => {
+        let simge = `${index + 1}.`;
+        if (index === 0) simge = "👑 1.";
+        
+        return `
+            <div class="leaderboard-item">
+                <div class="player-main-info">
+                    <span>${simge} ${skor.isim} <span class="date">(${skor.tarih})</span></span>
+                    <span>${skor.toplamPuan} Puan</span>
+                </div>
+                <div class="player-details-info">
+                    <span>✅ Doğru Köy: <b>${skor.dogruKoy}</b></span>
+                    <span>❌ Bilemediği Köy: <b>${skor.yanlisKoy}</b></span>
+                </div>
+            </div>
+        `;
+    }).join("");
+
+    // Köy rozetleri görünümleri
     let dogruKoylerHtml = bilinenKoylerListesi.length > 0 
         ? bilinenKoylerListesi.map(koy => `<span class="koy-badge-dogru">${koy}</span>`).join("")
         : `<span style="color:#6b7280; font-style:italic; font-size:13px;">Hiç köy bulunamadı.</span>`;
@@ -387,17 +439,23 @@ function oyunBitir() {
         ? bilinemeyenKoylerListesi.map(koy => `<span class="koy-badge-yanlis">${koy}</span>`).join("")
         : `<span style="color:#6b7280; font-style:italic; font-size:13px;">Hakkı biten köy yok.</span>`;
 
+    // Arayüzü Güncelleme
     soruYazi.innerHTML = "🎉 Oyun Tamamlandı";
-    finalPuan.innerHTML = puan;
     oyunSonu.classList.remove("gizli");
 
     oyunSonu.querySelector(".popup").innerHTML = `
         <h2 style="margin-bottom: 5px; color: #1f2937;">🏆 Oyun Bitti</h2>
-        <h1 style="color: #1f2937; font-size: 48px; margin-bottom: 15px;">${puan} Puan</h1>
+        <h1 style="color: #1f2937; font-size: 42px; margin-bottom: 15px;">${puan} Puan</h1>
+        
         <div class="game-over-scroll">
+            
             <div class="stats-row">
                 <span>Doğru Bilinen Köy Sayısı:</span>
                 <strong>${dogruSayisi}</strong>
+            </div>
+            <div class="stats-row">
+                <span>Bilinemeyen (Hakkı Biten) Köy Sayısı:</span>
+                <strong>${bilemedigiKoySayisi}</strong>
             </div>
             <div class="stats-row">
                 <span>Toplam Yanlış Tıklama Sayısı:</span>
@@ -407,16 +465,24 @@ function oyunBitir() {
                 <span>Genel Başarı Yüzdesi:</span>
                 <strong style="color: #16a34a; font-size: 18px;">%${dogrulukYuzdesi}</strong>
             </div>
-            <h4 class="section-title" style="color: #16a34a; margin-top: 20px;">Doğru Bilinen Köyler</h4>
+            
+            <h4 class="leaderboard-title">🏆 En Yüksek Skorlar (Top 5)</h4>
+            <div class="leaderboard-list">
+                ${leaderboardHtml}
+            </div>
+
+            <h4 class="section-title" style="color: #16a34a; margin-top: 15px;">Doğru Bilinen Köyler</h4>
             <div class="koy-konteyner bg-dogru-kutusu">
                 ${dogruKoylerHtml}
             </div>
-            <h4 class="section-title" style="color: #dc2626; margin-top: 20px;">Bulunamayan Köyler (Hakkı Biten)</h4>
+            
+            <h4 class="section-title" style="color: #dc2626; margin-top: 15px;">Bulunamayan Köyler (Hakkı Biten)</h4>
             <div class="koy-konteyner bg-yanlis-kutusu" style="margin-bottom: 10px;">
                 ${yanlisKoylerHtml}
             </div>
         </div>
-        <button id="yenidenOyna" style="width: 100%; padding: 14px; background: #16a34a; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 20px; box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.2);">
+        
+        <button id="yenidenOyna" style="width: 100%; padding: 14px; background: #16a34a; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 15px; box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.2);">
             🔄 Tekrar Oyna
         </button>
     `;
