@@ -490,3 +490,72 @@ button:hover{
     font-weight: bold;
     margin-top: 15px;
 }
+
+/* ==========================================
+   SKOR TABLOSU (LEADERBOARD) YENİ STİLLERİ
+========================================== */
+.leaderboard-title {
+    margin-top: 25px;
+    margin-bottom: 10px;
+    color: #1f2937;
+    font-size: 18px;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 5px;
+    text-align: left;
+    font-weight: bold;
+}
+
+.leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 15px;
+    max-height: 220px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.leaderboard-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: left;
+}
+
+/* En yüksek skora sahip 1. oyuncuya özel altın efekti */
+.leaderboard-item:nth-child(1) {
+    background: #fef3c7;
+    border-color: #fcd34d;
+}
+.leaderboard-item:nth-child(1) .player-main-info {
+    font-weight: bold;
+    color: #b45309;
+}
+
+.player-main-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    color: #111827;
+}
+
+.player-details-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #6b7280;
+    border-top: 1px dashed #e5e7eb;
+    padding-top: 4px;
+    margin-top: 2px;
+}
+
+.leaderboard-item .date {
+    font-size: 11px;
+    color: #9ca3af;
+}
