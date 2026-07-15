@@ -1,6 +1,6 @@
 // ======================================
 // DE GİDİ GOCA MİLAS DE
-// Milas Köy Bulma Oyunu (Gelişmiş İstatistik Sürümü)
+// Milas Köy Bulma Oyunu
 // ======================================
 
 const puanYazi = document.getElementById("puan");
@@ -147,7 +147,50 @@ function hoverBitis(e) {
     geojsonLayer.resetStyle(layer);
 }
 
-// GeoJSON Yükleme
+// ======================================
+// YOL KATMANLARINI EKLEME (ANAYOL & SECONDARY)
+// ======================================
+
+// 1. ANAYOL KATMANI (Kalın ve Ayırt Edilebilir Yeşil)
+fetch("anayol.geojson")
+    .then(response => response.json())
+    .then(data => {
+        const anaYolKatmani = L.geoJSON(data, {
+            style: {
+                color: "#09ff00",   // Dikkat çekici yeşil tonu
+                weight: 4.2,          // Diğer yollardan daha kalın
+                opacity: 1,      // Köy sınırlarıyla kesiştiğinde arkasının görünmesi için yarı şeffaf
+                lineCap: "round",   
+                lineJoin: "round"
+            }
+        }).addTo(map);
+        
+        // Sınır çizgilerinin altında kalması için katmanı arkaya gönderiyoruz
+        anaYolKatmani.bringToBack();
+    })
+    .catch(err => console.error("Anayol katmanı yüklenemedi:", err));
+
+// 2. SECONDARY YOL KATMANI (Turkuaz ve Daha İnce)
+fetch("secondary.geojson")
+    .then(response => response.json())
+    .then(data => {
+        const secondaryYolKatmani = L.geoJSON(data, {
+            style: {
+                color: "#002fff",   // Turkuaz renk
+                weight: 3,          // Anayoldan daha ince
+                opacity: 1,       // Hafif şeffaf
+                lineCap: "round",
+                lineJoin: "round"
+            }
+        }).addTo(map);
+        
+        // Bu katmanı da arka plana gönderiyoruz
+        secondaryYolKatmani.bringToBack();
+    })
+    .catch(err => console.error("Secondary yol katmanı yüklenemedi:", err));
+
+
+// GeoJSON Yükleme (KÖY SINIRLARI)
 fetch("KOY.geojson")
     .then(response => response.json())
     .then(data => {
@@ -300,13 +343,13 @@ function koyKontrol(feature, layer) {
         yanlisSayisi++;
         puanYazi.innerHTML = puan;
 
-        // YANLIŞ CEVAPTA SES AYARLARI (GÜNCELLENDİ)
+        // YANLIŞ CEVAPTA SES AYARLARI
         if (bgMusic && filterNode && audioCtx) {
             try {
-                // Yavaşlama ayarı tamamen kaldırıldı (playbackRate 1.0 olarak sabit tutuluyor)
+                // Yavaşlama tamamen kaldırıldı
                 bgMusic.playbackRate = 1.0; 
                 
-                // Ses tamamen gitmesin diye frekans sınırını 1200 Hz yaptık (Çok hafif, tatlı bir boğukluk)
+                // Çok hafif, tatlı bir derinlik/boğukluk efekti (1200 Hz)
                 filterNode.frequency.setValueAtTime(1200, audioCtx.currentTime); 
                 
                 setTimeout(() => {
@@ -379,22 +422,20 @@ function oyunBitir() {
     let toplamTiklama = dogruSayisi + yanlisSayisi;
     dogrulukYuzdesi = toplamTiklama > 0 ? Math.round((dogruSayisi / toplamTiklama) * 100) : 0;
 
-    // --- GELİŞMİŞ SKOR TABLOSU SİSTEMİ ---
-    // Oyuncudan isim alıyoruz (Boş bırakırsa Misafir atanır)
+    // --- GELİŞMİŞ KALICI SKOR TABLOSU SİSTEMİ ---
     let oyuncuAdi = prompt("Muazzam performans! Skor tablosuna kaydetmek için adınızı yazın:", "Oyuncu");
     if (!oyuncuAdi || oyuncuAdi.trim() === "") {
         oyuncuAdi = "Misafir";
     }
 
-    // Hakkı biten (hiç bilemediği) köy sayısını hesaplıyoruz
     let bilemedigiKoySayisi = bilinemeyenKoylerListesi.length;
 
-    // Mevcut skorları yerel hafızadan (localStorage) çekiyoruz
+    // Yerel hafızadan mevcut verileri çek
     let skorlar = JSON.parse(localStorage.getItem("milas_koy_skorlar_v2")) || [];
     
-    // Yeni skor kaydını oluşturuyoruz
+    // Yeni veriyi ekle
     const yeniSkor = {
-        isim: oyuncuAdi.substring(0, 15), // Maksimum 15 karakter
+        isim: oyuncuAdi.substring(0, 15), 
         toplamPuan: puan,
         dogruKoy: dogruSayisi,
         yanlisKoy: bilemedigiKoySayisi,
@@ -402,16 +443,14 @@ function oyunBitir() {
     };
     skorlar.push(yeniSkor);
 
-    // Skorları puana göre büyükten küçüğe sıralıyoruz
+    // Büyükten küçüğe sırala ve ilk 5 skoru filtrele
     skorlar.sort((a, b) => b.toplamPuan - a.toplamPuan);
-    
-    // Tabloda kalabalık yapmaması için sadece en iyi 5 skoru tutuyoruz
     skorlar = skorlar.slice(0, 5);
 
-    // Güncel listeyi kalıcı olarak tarayıcıya kaydediyoruz
+    // Hafızaya geri yaz
     localStorage.setItem("milas_koy_skorlar_v2", JSON.stringify(skorlar));
 
-    // Skor tablosunun HTML yapısını oluşturuyoruz
+    // Skor tablosu HTML tasarımını oluştur
     let leaderboardHtml = skorlar.map((skor, index) => {
         let simge = `${index + 1}.`;
         if (index === 0) simge = "👑 1.";
@@ -430,7 +469,6 @@ function oyunBitir() {
         `;
     }).join("");
 
-    // Köy rozetleri görünümleri
     let dogruKoylerHtml = bilinenKoylerListesi.length > 0 
         ? bilinenKoylerListesi.map(koy => `<span class="koy-badge-dogru">${koy}</span>`).join("")
         : `<span style="color:#6b7280; font-style:italic; font-size:13px;">Hiç köy bulunamadı.</span>`;
@@ -439,7 +477,7 @@ function oyunBitir() {
         ? bilinemeyenKoylerListesi.map(koy => `<span class="koy-badge-yanlis">${koy}</span>`).join("")
         : `<span style="color:#6b7280; font-style:italic; font-size:13px;">Hakkı biten köy yok.</span>`;
 
-    // Arayüzü Güncelleme
+    // Ekranı güncelle
     soruYazi.innerHTML = "🎉 Oyun Tamamlandı";
     oyunSonu.classList.remove("gizli");
 
@@ -448,7 +486,7 @@ function oyunBitir() {
         <h1 style="color: #1f2937; font-size: 42px; margin-bottom: 15px;">${puan} Puan</h1>
         
         <div class="game-over-scroll">
-            
+            <!-- Anlık Oyun İstatistikleri -->
             <div class="stats-row">
                 <span>Doğru Bilinen Köy Sayısı:</span>
                 <strong>${dogruSayisi}</strong>
@@ -466,6 +504,7 @@ function oyunBitir() {
                 <strong style="color: #16a34a; font-size: 18px;">%${dogrulukYuzdesi}</strong>
             </div>
             
+            <!-- KALICI SKOR TABLOSU -->
             <h4 class="leaderboard-title">🏆 En Yüksek Skorlar (Top 5)</h4>
             <div class="leaderboard-list">
                 ${leaderboardHtml}
