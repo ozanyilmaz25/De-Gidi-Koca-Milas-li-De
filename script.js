@@ -1,6 +1,6 @@
 // ======================================
 // DE GİDİ GOCA MİLAS DE
-// Milas Köy Bulma Oyunu
+// Milas Köy Bulma Oyunu (Gelişmiş İstatistik Sürümü)
 // ======================================
 
 const puanYazi = document.getElementById("puan");
@@ -13,8 +13,6 @@ const baslatBtn = document.getElementById("baslatBtn");
 const yenidenBtn = document.getElementById("yenidenBtn");
 
 const oyunSonu = document.getElementById("oyunSonu");
-const finalPuan = document.getElementById("finalPuan");
-const tekrarBtn = document.getElementById("tekrarBtn");
 const bgMusic = document.getElementById("bgMusic");
 
 let map;
@@ -25,17 +23,17 @@ let sorulmayanKoyler = [];
 let puan = 0;
 let soruNo = 1;
 let oyunBasladi = false;
-let kalanSure = 900; // 15 dakika 00 saniye
+let kalanSure = 1200; // 20 dakika 00 saniye
 let timer = null;
 let dogruSayisi = 0;
 let yanlisSayisi = 0;
 let dogrulukYuzdesi = 0;
 
-let aktifKoyHakki = 3;       
+let aktifKoyHakki = 3;        
 let yanlisKoylerListesi = [];
 let tiklamaKilitli = false; 
 
-let bilinenKoylerListesi = [];   
+let bilinenKoylerListesi = [];    
 let bilinemeyenKoylerListesi = []; 
 
 // --- WEB AUDIO API DEĞİŞKENLERİ ---
@@ -91,7 +89,7 @@ function playRetroWinSound() {
         const gain = audioCtx.createGain();
         
         osc.type = "triangle"; 
-        osc.frequency.setValueAtTime(523.25, t);       
+        osc.frequency.setValueAtTime(523.25, t);        
         osc.frequency.setValueAtTime(659.25, t + 0.08); 
         osc.frequency.setValueAtTime(783.99, t + 0.16); 
         osc.frequency.setValueAtTime(1046.50, t + 0.24);
@@ -157,15 +155,14 @@ fetch("anayol.geojson")
     .then(data => {
         const anaYolKatmani = L.geoJSON(data, {
             style: {
-                color: "#09ff00",   // Dikkat çekici yeşil tonu
-                weight: 4.2,          // Diğer yollardan daha kalın
-                opacity: 1,      // Köy sınırlarıyla kesiştiğinde arkasının görünmesi için yarı şeffaf
+                color: "#10b981",   // Dikkat çekici yeşil tonu
+                weight: 4,          // Diğer yollardan daha kalın
+                opacity: 0.75,      // Köy sınırlarıyla kesiştiğinde arkasının görünmesi için yarı şeffaf
                 lineCap: "round",   
                 lineJoin: "round"
             }
         }).addTo(map);
         
-        // Sınır çizgilerinin altında kalması için katmanı arkaya gönderiyoruz
         anaYolKatmani.bringToBack();
     })
     .catch(err => console.error("Anayol katmanı yüklenemedi:", err));
@@ -176,15 +173,14 @@ fetch("secondary.geojson")
     .then(data => {
         const secondaryYolKatmani = L.geoJSON(data, {
             style: {
-                color: "#002fff",   // Turkuaz renk
-                weight: 3,          // Anayoldan daha ince
-                opacity: 1,       // Hafif şeffaf
+                color: "#06b6d4",   // Turkuaz renk
+                weight: 2,          // Anayoldan daha ince
+                opacity: 0.7,       // Hafif şeffaf
                 lineCap: "round",
                 lineJoin: "round"
             }
         }).addTo(map);
         
-        // Bu katmanı da arka plana gönderiyoruz
         secondaryYolKatmani.bringToBack();
     })
     .catch(err => console.error("Secondary yol katmanı yüklenemedi:", err));
@@ -216,8 +212,11 @@ fetch("KOY.geojson")
 
 function yeniSoru() {
     yanlisKoylerListesi.forEach(layer => {
-        geojsonLayer.resetStyle(layer);
-        layer.on("mouseout", hoverBitis);
+        // Hakkı bitip turuncu olan köylerin stilini sıfırlama, haritada sabit kalsınlar
+        if (!layer.hakkiBitti) {
+            geojsonLayer.resetStyle(layer);
+            layer.on("mouseout", hoverBitis);
+        }
     });
     yanlisKoylerListesi = []; 
     aktifKoyHakki = 3;
@@ -229,6 +228,7 @@ function yeniSoru() {
 
     let rastgele = Math.floor(Math.random() * sorulmayanKoyler.length);
     aktifKoy = sorulmayanKoyler[rastgele];
+    // Sorulan köy listeden çıkarılıyor, böylece her oyunda yalnızca 1 kez sorulur
     sorulmayanKoyler.splice(rastgele, 1);
 
     soruYazi.innerHTML = "📍 <b>" + aktifKoy.ad + "</b> köyünü bulun. <span style='color: #ffcc00;'>(Kalan Hak: " + aktifKoyHakki + ")</span>";
@@ -251,7 +251,7 @@ function oyunuBaslat() {
     if (bgMusic) {
         try {
             bgMusic.volume = 0.3; 
-            bgMusic.playbackRate = 1.0; // Oyun başında müzik normal hızda başlar
+            bgMusic.playbackRate = 1.0; 
             if (filterNode) filterNode.frequency.setValueAtTime(20000, audioCtx.currentTime); 
             if (musicGainNode) musicGainNode.gain.setValueAtTime(1.0, audioCtx.currentTime);
             bgMusic.play().catch(error => {
@@ -264,7 +264,7 @@ function oyunuBaslat() {
 
     puan = 0;
     soruNo = 1;
-    kalanSure = 900; 
+    kalanSure = 1200; 
     dogruSayisi = 0;
     yanlisSayisi = 0;
     dogrulukYuzdesi = 0;
@@ -279,16 +279,15 @@ function oyunuBaslat() {
     puanYazi.innerHTML = puan;
     sureYazi.innerHTML = sureFormatla(kalanSure); 
     if (mesaj) mesaj.innerHTML = "";
-    baslatBtn.style.display = "none";
-    yenidenBtn.style.display = "inline-block";
+    if (baslatBtn) baslatBtn.style.display = "none";
+    if (yenidenBtn) yenidenBtn.style.display = "inline-block";
 
     yeniSoru();
     zamanlayici();
 }
 
-baslatBtn.addEventListener("click", oyunuBaslat);
-yenidenBtn.addEventListener("click", () => location.reload());
-tekrarBtn.addEventListener("click", () => location.reload());
+if (baslatBtn) baslatBtn.addEventListener("click", oyunuBaslat);
+if (yenidenBtn) yenidenBtn.addEventListener("click", () => location.reload());
 
 function koyKontrol(feature, layer) {
     if (!aktifKoy || tiklamaKilitli) return; 
@@ -343,13 +342,9 @@ function koyKontrol(feature, layer) {
         yanlisSayisi++;
         puanYazi.innerHTML = puan;
 
-        // YANLIŞ CEVAPTA SES AYARLARI
         if (bgMusic && filterNode && audioCtx) {
             try {
-                // Yavaşlama tamamen kaldırıldı
                 bgMusic.playbackRate = 1.0; 
-                
-                // Çok hafif, tatlı bir derinlik/boğukluk efekti (1200 Hz)
                 filterNode.frequency.setValueAtTime(1200, audioCtx.currentTime); 
                 
                 setTimeout(() => {
@@ -385,6 +380,26 @@ function koyKontrol(feature, layer) {
             bilinemeyenKoylerListesi.push(aktifKoy.ad); 
             if (mesaj) mesaj.innerHTML = "💥 Hakkınız Bitti!";
             tiklamaKilitli = true; 
+
+            // 🟠 3 Hak Bittiğinde: Doğru köy poligonu turuncuya boyanır ve haritada kilitlenir
+            const dogruKoyLayer = aktifKoy.layer;
+            dogruKoyLayer.hakkiBitti = true; 
+            dogruKoyLayer.off("click");
+            dogruKoyLayer.off("mouseover", hover);
+            dogruKoyLayer.off("mouseout", hoverBitis);
+
+            dogruKoyLayer.setStyle({
+                color: "#ea580c",       // Turuncu çerçeve
+                fillColor: "#f97316",   // Turuncu dolgu
+                fillOpacity: 0.60,
+                weight: 3
+            });
+
+            dogruKoyLayer.bindTooltip(aktifKoy.ad, { 
+                permanent: true, 
+                direction: "center",
+                className: "bilemediEtiket"
+            });
 
             setTimeout(() => {
                 soruNo++;
@@ -422,7 +437,6 @@ function oyunBitir() {
     let toplamTiklama = dogruSayisi + yanlisSayisi;
     dogrulukYuzdesi = toplamTiklama > 0 ? Math.round((dogruSayisi / toplamTiklama) * 100) : 0;
 
-    // --- GELİŞMİŞ KALICI SKOR TABLOSU SİSTEMİ ---
     let oyuncuAdi = prompt("Muazzam performans! Skor tablosuna kaydetmek için adınızı yazın:", "Oyuncu");
     if (!oyuncuAdi || oyuncuAdi.trim() === "") {
         oyuncuAdi = "Misafir";
@@ -430,10 +444,8 @@ function oyunBitir() {
 
     let bilemedigiKoySayisi = bilinemeyenKoylerListesi.length;
 
-    // Yerel hafızadan mevcut verileri çek
     let skorlar = JSON.parse(localStorage.getItem("milas_koy_skorlar_v2")) || [];
     
-    // Yeni veriyi ekle
     const yeniSkor = {
         isim: oyuncuAdi.substring(0, 15), 
         toplamPuan: puan,
@@ -443,14 +455,11 @@ function oyunBitir() {
     };
     skorlar.push(yeniSkor);
 
-    // Büyükten küçüğe sırala ve ilk 5 skoru filtrele
     skorlar.sort((a, b) => b.toplamPuan - a.toplamPuan);
     skorlar = skorlar.slice(0, 5);
 
-    // Hafızaya geri yaz
     localStorage.setItem("milas_koy_skorlar_v2", JSON.stringify(skorlar));
 
-    // Skor tablosu HTML tasarımını oluştur
     let leaderboardHtml = skorlar.map((skor, index) => {
         let simge = `${index + 1}.`;
         if (index === 0) simge = "👑 1.";
@@ -477,54 +486,97 @@ function oyunBitir() {
         ? bilinemeyenKoylerListesi.map(koy => `<span class="koy-badge-yanlis">${koy}</span>`).join("")
         : `<span style="color:#6b7280; font-style:italic; font-size:13px;">Hakkı biten köy yok.</span>`;
 
-    // Ekranı güncelle
     soruYazi.innerHTML = "🎉 Oyun Tamamlandı";
-    oyunSonu.classList.remove("gizli");
+    if (oyunSonu) oyunSonu.classList.remove("gizli");
 
-    oyunSonu.querySelector(".popup").innerHTML = `
-        <h2 style="margin-bottom: 5px; color: #1f2937;">🏆 Oyun Bitti</h2>
-        <h1 style="color: #1f2937; font-size: 42px; margin-bottom: 15px;">${puan} Puan</h1>
-        
-        <div class="game-over-scroll">
-            <!-- Anlık Oyun İstatistikleri -->
-            <div class="stats-row">
-                <span>Doğru Bilinen Köy Sayısı:</span>
-                <strong>${dogruSayisi}</strong>
-            </div>
-            <div class="stats-row">
-                <span>Bilinemeyen (Hakkı Biten) Köy Sayısı:</span>
-                <strong>${bilemedigiKoySayisi}</strong>
-            </div>
-            <div class="stats-row">
-                <span>Toplam Yanlış Tıklama Sayısı:</span>
-                <strong>${yanlisSayisi}</strong>
-            </div>
-            <div class="stats-row" style="border-bottom: none;">
-                <span>Genel Başarı Yüzdesi:</span>
-                <strong style="color: #16a34a; font-size: 18px;">%${dogrulukYuzdesi}</strong>
+    const popupContent = oyunSonu ? oyunSonu.querySelector(".popup") : null;
+    if (popupContent) {
+        popupContent.innerHTML = `
+            <h2 style="margin-bottom: 5px; color: #1f2937;">🏆 Oyun Bitti</h2>
+            <h1 style="color: #1f2937; font-size: 42px; margin-bottom: 15px;">${puan} Puan</h1>
+            
+            <div class="game-over-scroll">
+                <div class="stats-row">
+                    <span>Doğru Bilinen Köy Sayısı:</span>
+                    <strong>${dogruSayisi}</strong>
+                </div>
+                <div class="stats-row">
+                    <span>Bilinemeyen (Hakkı Biten) Köy Sayısı:</span>
+                    <strong>${bilemedigiKoySayisi}</strong>
+                </div>
+                <div class="stats-row">
+                    <span>Toplam Yanlış Tıklama Sayısı:</span>
+                    <strong>${yanlisSayisi}</strong>
+                </div>
+                <div class="stats-row" style="border-bottom: none;">
+                    <span>Genel Başarı Yüzdesi:</span>
+                    <strong style="color: #16a34a; font-size: 18px;">%${dogrulukYuzdesi}</strong>
+                </div>
+                
+                <h4 class="leaderboard-title">🏆 En Yüksek Skorlar (Top 5)</h4>
+                <div class="leaderboard-list">
+                    ${leaderboardHtml}
+                </div>
+
+                <h4 class="section-title" style="color: #16a34a; margin-top: 15px;">Doğru Bilinen Köyler</h4>
+                <div class="koy-konteyner bg-dogru-kutusu">
+                    ${dogruKoylerHtml}
+                </div>
+                
+                <h4 class="section-title" style="color: #dc2626; margin-top: 15px;">Bulunamayan Köyler (Hakkı Biten)</h4>
+                <div class="koy-konteyner bg-yanlis-kutusu" style="margin-bottom: 10px;">
+                    ${yanlisKoylerHtml}
+                </div>
             </div>
             
-            <!-- KALICI SKOR TABLOSU -->
-            <h4 class="leaderboard-title">🏆 En Yüksek Skorlar (Top 5)</h4>
-            <div class="leaderboard-list">
-                ${leaderboardHtml}
-            </div>
+            <button id="yenidenOyna" style="width: 100%; padding: 14px; background: #16a34a; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 15px; box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.2);">
+                🔄 Tekrar Oyna
+            </button>
+        `;
 
-            <h4 class="section-title" style="color: #16a34a; margin-top: 15px;">Doğru Bilinen Köyler</h4>
-            <div class="koy-konteyner bg-dogru-kutusu">
-                ${dogruKoylerHtml}
-            </div>
-            
-            <h4 class="section-title" style="color: #dc2626; margin-top: 15px;">Bulunamayan Köyler (Hakkı Biten)</h4>
-            <div class="koy-konteyner bg-yanlis-kutusu" style="margin-bottom: 10px;">
-                ${yanlisKoylerHtml}
-            </div>
-        </div>
-        
-        <button id="yenidenOyna" style="width: 100%; padding: 14px; background: #16a34a; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 15px; box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.2);">
-            🔄 Tekrar Oyna
-        </button>
-    `;
-
-    document.getElementById("yenidenOyna").onclick = () => location.reload();
+        const yeniBtn = document.getElementById("yenidenOyna");
+        if (yeniBtn) yeniBtn.onclick = () => location.reload();
+    }
 }
+
+// ==========================================
+// BAŞLANGIÇ SKOR TABLOSU DOLDURMA
+// ==========================================
+function baslangicLeaderboardGuncelle() {
+    const listeKutusu = document.getElementById("baslangicLeaderboardListesi");
+    if (!listeKutusu) return;
+
+    let skorlar = JSON.parse(localStorage.getItem("milas_koy_skorlar_v2")) || [];
+
+    if (skorlar.length === 0) {
+        listeKutusu.innerHTML = `<div style="font-size: 12px; color: #9ca3af; font-style: italic;">Henüz kaydedilmiş skor yok. İlk oynayan sen ol!</div>`;
+        return;
+    }
+
+    listeKutusu.innerHTML = skorlar.map((skor, index) => {
+        let simge = `${index + 1}.`;
+        let birinciSinif = "";
+        
+        if (index === 0) {
+            simge = "👑 1.";
+            birinciSinif = "birinci";
+        }
+
+        return `
+            <div class="baslangic-item ${birinciSinif}" onclick="this.classList.toggle('acik')">
+                <div class="baslangic-item-ozet">
+                    <span>${simge} ${skor.isim}</span>
+                    <span style="font-weight: bold; color: #059669;">${skor.toplamPuan} Puan</span>
+                </div>
+                <div class="baslangic-item-detay">
+                    <span>✅ Doğru: <b>${skor.dogruKoy || 0}</b></span>
+                    <span>❌ Bilemediği: <b>${skor.yanlisKoy || 0}</b></span>
+                    <span>📅 Tarih: <b>${skor.tarih || '-'}</b></span>
+                </div>
+            </div>
+        `;
+    }).join("");
+}
+
+// Sayfa yüklendiğinde çalıştır
+baslangicLeaderboardGuncelle();
