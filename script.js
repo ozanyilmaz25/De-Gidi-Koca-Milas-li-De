@@ -1,6 +1,6 @@
 // ======================================
 // DE GİDİ GOCA MİLAS DE
-// Milas Köy Bulma Oyunu (Gelişmiş İstatistik Sürümü)
+// Milas Köy Bulma Oyunu
 // ======================================
 
 const puanYazi = document.getElementById("puan");
@@ -42,7 +42,7 @@ let source = null;
 let filterNode = null;
 let musicGainNode = null; 
 
-// ⏱️ Saniyeyi Dakika:Saniye (00:00) Formatına Çeviren Yardımcı Fonksiyon
+// Saniyeyi Dakika:Saniye (00:00) Formatına Çeviren Yardımcı Fonksiyon
 function sureFormatla(saniye) {
     let dk = Math.floor(saniye / 60);
     let sn = saniye % 60;
@@ -52,7 +52,7 @@ function sureFormatla(saniye) {
     return dk + ":" + sn;
 }
 
-// Sesi işlemek ve bası/tizi bozabilmek için filtre katmanı oluşturuyoruz
+// Ses için filtre katmanı
 function sesSisteminiKur() {
     try {
         if (audioCtx) return; 
@@ -76,7 +76,7 @@ function sesSisteminiKur() {
     }
 }
 
-// RETRO DOĞRU CEVAP SES EFEKTİ ÜRETİCİSİ
+// DOĞRU CEVAP SES EFEKTİ
 function playRetroWinSound() {
     if (!audioCtx) return;
     try {
@@ -124,7 +124,7 @@ L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/
 }).addTo(map);
 
 function normalStil() {
-    return { color: "#ff0000", weight: 2, fillColor: "#ff0000", fillOpacity: 0.08 };
+    return { color: "#ff0000", weight: 2, fillColor: "#ff0000", fillOpacity: 0 };
 }
 
 function hover(e) {
@@ -133,7 +133,7 @@ function hover(e) {
     if (layer.dogruBilindi) return; 
     if (yanlisKoylerListesi.includes(layer)) return;
     
-    layer.setStyle({ weight: 4, color: "#00ffff", fillOpacity: 0.25 });
+    layer.setStyle({ weight: 4, color: "#ff0000", fillOpacity: 0.10 });
 }
 
 function hoverBitis(e) {
@@ -146,47 +146,69 @@ function hoverBitis(e) {
 }
 
 // ======================================
-// YOL KATMANLARINI EKLEME (ANAYOL & SECONDARY)
+// YOL KATMANLARI
 // ======================================
 
-// 1. ANAYOL KATMANI (Kalın ve Ayırt Edilebilir Yeşil)
+// PRIMARY YOL
 fetch("anayol.geojson")
     .then(response => response.json())
     .then(data => {
-        const anaYolKatmani = L.geoJSON(data, {
+        // Alt Katman:
+        L.geoJSON(data, {
             style: {
-                color: "#10b981",   // Dikkat çekici yeşil tonu
-                weight: 4,          // Diğer yollardan daha kalın
-                opacity: 0.75,      // Köy sınırlarıyla kesiştiğinde arkasının görünmesi için yarı şeffaf
-                lineCap: "round",   
-                lineJoin: "round"
-            }
-        }).addTo(map);
-        
-        anaYolKatmani.bringToBack();
-    })
-    .catch(err => console.error("Anayol katmanı yüklenemedi:", err));
-
-// 2. SECONDARY YOL KATMANI (Turkuaz ve Daha İnce)
-fetch("secondary.geojson")
-    .then(response => response.json())
-    .then(data => {
-        const secondaryYolKatmani = L.geoJSON(data, {
-            style: {
-                color: "#06b6d4",   // Turkuaz renk
-                weight: 2,          // Anayoldan daha ince
-                opacity: 0.7,       // Hafif şeffaf
+                color: "#000000",
+                weight: 7,
+                opacity: 0.95,
                 lineCap: "round",
                 lineJoin: "round"
             }
         }).addTo(map);
-        
-        secondaryYolKatmani.bringToBack();
+
+        // Üst Katman:
+        L.geoJSON(data, {
+            style: {
+                color: "#2E8B60",
+                weight: 3.5,
+                opacity: 1.0,
+                lineCap: "round",
+                lineJoin: "round"
+            }
+        }).addTo(map);
     })
-    .catch(err => console.error("Secondary yol katmanı yüklenemedi:", err));
+    .catch(err => console.error("Anayol yüklenirken hata:", err));
 
 
-// GeoJSON Yükleme (KÖY SINIRLARI)
+// SECONDARY YOL
+fetch("secondary.geojson")
+    .then(response => response.json())
+    .then(data => {
+        // Alt Katman:
+        L.geoJSON(data, {
+            style: {
+                color: "#000000",
+                weight: 5,
+                opacity: 0.9,
+                lineCap: "round",
+                lineJoin: "round"
+            }
+        }).addTo(map);
+
+        // Üst Katman:
+        L.geoJSON(data, {
+            style: {
+                color: "#06b6d4",
+                weight: 2.2,
+                opacity: 1.0,
+                lineCap: "round",
+                lineJoin: "round"
+            }
+        }).addTo(map);
+    })
+    .catch(err => console.error("Secondary yol yüklenirken hata:", err));
+
+
+
+// KÖY SINIRLARI
 fetch("KOY.geojson")
     .then(response => response.json())
     .then(data => {
@@ -231,11 +253,16 @@ function yeniSoru() {
     // Sorulan köy listeden çıkarılıyor, böylece her oyunda yalnızca 1 kez sorulur
     sorulmayanKoyler.splice(rastgele, 1);
 
-    soruYazi.innerHTML = "📍 <b>" + aktifKoy.ad + "</b> köyünü bulun. <span style='color: #ffcc00;'>(Kalan Hak: " + aktifKoyHakki + ")</span>";
+    soruYazi.innerHTML = "<b>" + aktifKoy.ad + "</b> köyünü bulun. <span style='color: #ffcc00;'>(Kalan Hak: " + aktifKoyHakki + ")</span>";
     soruNoYazi.innerHTML = soruNo;
 }
 
 function oyunuBaslat() {
+
+    // Skor tablosunu oyun başladığında gizle
+const baslangicTablo = document.getElementById("baslangicLeaderboard");
+if (baslangicTablo) baslangicTablo.style.display = "none";
+
     if (!audioCtx) {
         sesSisteminiKur();
     }
@@ -381,7 +408,7 @@ function koyKontrol(feature, layer) {
             if (mesaj) mesaj.innerHTML = "💥 Hakkınız Bitti!";
             tiklamaKilitli = true; 
 
-            // 🟠 3 Hak Bittiğinde: Doğru köy poligonu turuncuya boyanır ve haritada kilitlenir
+            // Hak Bittiğinde: Doğru köy poligonu turuncuya boyanır ve haritada kilitlenir
             const dogruKoyLayer = aktifKoy.layer;
             dogruKoyLayer.hakkiBitti = true; 
             dogruKoyLayer.off("click");
@@ -537,10 +564,16 @@ function oyunBitir() {
         const yeniBtn = document.getElementById("yenidenOyna");
         if (yeniBtn) yeniBtn.onclick = () => location.reload();
     }
+
+const baslangicTablo = document.getElementById("baslangicLeaderboard");
+if (baslangicTablo) baslangicTablo.style.display = "block";
+
+baslangicLeaderboardGuncelle();
+
 }
 
 // ==========================================
-// BAŞLANGIÇ SKOR TABLOSU DOLDURMA
+// BAŞLANGIÇ SKOR TABLOSU
 // ==========================================
 function baslangicLeaderboardGuncelle() {
     const listeKutusu = document.getElementById("baslangicLeaderboardListesi");
