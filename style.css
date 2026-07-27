@@ -559,3 +559,92 @@ button:hover{
     font-size: 11px;
     color: #9ca3af;
 }
+
+/* ==========================================
+   BİLEMEYEN KÖY ETİKETİ STİLİ (SADE/ŞEFFAF)
+========================================== */
+.leaflet-tooltip.bilemediEtiket {
+    background: transparent !important; /* Arka plan kutusunu/tamponu kaldırır */
+    border: none !important;            /* Çerçeveyi kaldırır */
+    box-shadow: none !important;        /* Kutu gölgesini kaldırır */
+    color: #ffffff !important;          /* Yazı rengi */
+    font-size: 11px !important;         /* Yazı boyutunu küçültür */
+    font-weight: bold !important;
+    text-shadow: 1px 1px 2px #000000;   /* Harita üstünde okunabilmesi için ince siyah gölge */
+    padding: 0 !important;
+}
+
+/* Etiketin küçük ok (pointer) işaretini gizler */
+.leaflet-tooltip.bilemediEtiket::before {
+    display: none !important;
+}
+
+/* ==========================================
+   BAŞLANGIÇ LİDERLİK TABLOSU STİLLERİ
+========================================== */
+.baslangic-leaderboard-kutusu {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 15px;
+    margin: 15px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.baslangic-leaderboard-baslik {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    color: #1f2937;
+    font-weight: bold;
+    border-bottom: 2px solid #f3f4f6;
+    padding-bottom: 6px;
+}
+
+.baslangic-leaderboard-listesi {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.baslangic-item {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.baslangic-item:hover {
+    background: #f3f4f6;
+}
+
+/* 1. Oyuncunun Altın Efekti */
+.baslangic-item.birinci {
+    background: #fef3c7;
+    border-color: #fcd34d;
+}
+
+.baslangic-item-ozet {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 14px;
+    color: #111827;
+}
+
+.baslangic-item-detay {
+    display: none; /* Varsayılan olarak kapalı */
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed #d1d5db;
+    font-size: 12px;
+    color: #4b5563;
+    justify-content: space-between;
+}
+
+/* Tıklanınca detayları açar */
+.baslangic-item.acik .baslangic-item-detay {
+    display: flex;
+}
