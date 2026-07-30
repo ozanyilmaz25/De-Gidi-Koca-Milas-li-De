@@ -613,6 +613,7 @@ button {
 
 @media (max-width: 600px) {
 
+    /* 1. SKOR TABLOSU (Korundu) */
     #baslangicLeaderboard {
         top: auto;
         bottom: 85px;
@@ -625,51 +626,53 @@ button {
         overflow-y: auto;
     }
 
+    /* 2. ÜST PANEL (#ustPanel - Dengeli Büyütüldü) */
     #ustPanel {
-        padding: 6px 10px !important;
+        padding: 10px 14px !important; /* İç boşluğu biraz artırdık */
         flex-direction: row !important;
         justify-content: space-between !important;
-        gap: 5px !important;
+        align-items: center !important;
     }
 
     .logo h1 {
-        font-size: 20px !important;
-        line-height: 1.1 !important;
+        font-size: 18px !important; /* Başlık biraz büyütüldü */
+        line-height: 1.2 !important;
     }
 
     .logo p {
-        display: none !important; 
+        display: none !important;
     }
 
     .istatistik {
-        gap: 5px !important;
-        width: auto !important;
+        gap: 8px !important;
     }
 
     .kutu {
-        padding: 4px 8px !important;
-        min-width: 55px !important;
-        border-radius: 6px !important;
+        padding: 6px 10px !important; /* Kutular biraz daha dolgun duracak */
+        min-width: 62px !important;
+        border-radius: 8px !important;
     }
 
     .baslik {
-        font-size: 9px !important;
+        font-size: 10px !important; /* Puan/Süre/Soru etiketleri */
         margin-bottom: 2px !important;
     }
 
     .kutu span:last-child {
-        font-size: 15px !important;
+        font-size: 18px !important; /* Sayılar daha belirgin */
     }
 
+    /* 3. SORU PANELİ (#soruPanel) */
     #soruPanel {
-        padding: 6px 10px !important;
+        padding: 8px 12px !important;
     }
 
     #soru {
-        font-size: 16px !important;
+        font-size: 18px !important; /* Soru yazısı okunaklı hale getirildi */
         font-weight: bold !important;
     }
 
+    /* 4. ALT PANEL (#altPanel) */
     #altPanel {
         padding: 8px 10px 30px 10px !important;
         min-height: 50px !important;
