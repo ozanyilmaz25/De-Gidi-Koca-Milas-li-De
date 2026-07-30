@@ -174,7 +174,7 @@ fetch("KOY.geojson")
         map.fitBounds(geojsonLayer.getBounds());
         if (window.innerWidth <= 600) {
             const merkez = map.getCenter();
-            map.setView([merkez.lat - 0.05, merkez.lng], map.getZoom() - 0.2);
+            map.setView([merkez.lat - 0.05, merkez.lng], map.getZoom() - 0.4);
         }
 
         if (mesaj) mesaj.innerHTML = "";
