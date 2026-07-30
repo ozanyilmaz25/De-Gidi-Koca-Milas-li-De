@@ -612,6 +612,7 @@ button {
 }
 
 @media (max-width: 600px) {
+    /* 1. Mobil Skor Tablosu */
     #baslangicLeaderboard {
         top: auto;
         bottom: 90px;
@@ -623,21 +624,27 @@ button {
         z-index: 2500;
         overflow-y: auto;
     }
-}
 
-    header, #header, .header, #ustPanel {
-        padding: 6px 10px !important;
+    /* 2. Üst Ana Panel ve İçindeki Kutular / Kartlar */
+    header, #header, .header, #ustPanel, #ustKutu, .card, .container, .box {
+        padding: 4px 8px !important;
+        margin: 0 auto 4px auto !important;
+        min-height: unset !important;
+        height: auto !important;
     }
 
-    header h1, #header h1, .header h1, #ustPanel h1, h1 {
-        font-size: 1.1rem !important;
+    /* 3. Başlıklar (De Gidi Goca Milas) */
+    header h1, #header h1, .header h1, #ustPanel h1, h1, h2, h3 {
+        font-size: 0.95rem !important;
         margin: 0 0 2px 0 !important;
-        line-height: 1.2 !important;
+        line-height: 1.1 !important;
     }
 
-    header p, #header p, .header p, #ustPanel p, p {
+    /* 4. Metinler ve Açıklama Kutuları */
+    header p, #header p, .header p, #ustPanel p, p, span, label {
         font-size: 0.75rem !important;
         margin: 0 !important;
+        padding: 0 !important;
         line-height: 1.1 !important;
     }
 }
