@@ -613,12 +613,14 @@ button {
 
 @media (max-width: 600px) {
     #baslangicLeaderboard {
-        top: 190px;
+        top: auto;
+        bottom: 90px;
         left: 50%;
         right: auto;
         transform: translateX(-50%);
-        width: 88%;
+        width: 90%;
         max-height: 200px;
         z-index: 2500;
+        overflow-y: auto;
     }
 }
