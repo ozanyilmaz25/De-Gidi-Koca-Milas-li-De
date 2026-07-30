@@ -612,39 +612,66 @@ button {
 }
 
 @media (max-width: 600px) {
-    /* 1. Mobil Skor Tablosu */
+
     #baslangicLeaderboard {
         top: auto;
-        bottom: 90px;
+        bottom: 85px;
         left: 50%;
         right: auto;
         transform: translateX(-50%);
         width: 90%;
-        max-height: 200px;
+        max-height: 160px;
         z-index: 2500;
         overflow-y: auto;
     }
 
-    /* 2. Üst Ana Panel ve İçindeki Kutular / Kartlar */
-    header, #header, .header, #ustPanel, #ustKutu, .card, .container, .box {
+    #ustPanel {
+        padding: 6px 10px !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        gap: 5px !important;
+    }
+
+    .logo h1 {
+        font-size: 20px !important;
+        line-height: 1.1 !important;
+    }
+
+    .logo p {
+        display: none !important; 
+    }
+
+    .istatistik {
+        gap: 5px !important;
+        width: auto !important;
+    }
+
+    .kutu {
         padding: 4px 8px !important;
-        margin: 0 auto 4px auto !important;
-        min-height: unset !important;
-        height: auto !important;
+        min-width: 55px !important;
+        border-radius: 6px !important;
     }
 
-    /* 3. Başlıklar (De Gidi Goca Milas) */
-    header h1, #header h1, .header h1, #ustPanel h1, h1, h2, h3 {
-        font-size: 0.95rem !important;
-        margin: 0 0 2px 0 !important;
-        line-height: 1.1 !important;
+    .baslik {
+        font-size: 9px !important;
+        margin-bottom: 2px !important;
     }
 
-    /* 4. Metinler ve Açıklama Kutuları */
-    header p, #header p, .header p, #ustPanel p, p, span, label {
-        font-size: 0.75rem !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        line-height: 1.1 !important;
+    .kutu span:last-child {
+        font-size: 15px !important;
+    }
+
+    #soruPanel {
+        padding: 6px 10px !important;
+    }
+
+    #soru {
+        font-size: 16px !important;
+        font-weight: bold !important;
+    }
+
+    #altPanel {
+        padding: 8px 10px 30px 10px !important;
+        min-height: 50px !important;
     }
 }
