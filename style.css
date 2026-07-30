@@ -597,7 +597,7 @@ button {
 
 #baslangicLeaderboard {
     position: absolute;
-    top: 140px;
+    top: 175px;
     right: 20px;
     z-index: 2500;
     width: 280px;
@@ -613,7 +613,7 @@ button {
 
 @media (max-width: 600px) {
     #baslangicLeaderboard {
-        top: 180px;
+        top: 190px;
         left: 50%;
         right: auto;
         transform: translateX(-50%);
