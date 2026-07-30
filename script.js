@@ -171,11 +171,16 @@ fetch("KOY.geojson")
             }
         }).addTo(map);
 
-        map.fitBounds(geojsonLayer.getBounds());
-        if (window.innerWidth <= 600) {
-            const merkez = map.getCenter();
-            map.setView([merkez.lat - 0.05, merkez.lng], map.getZoom() - 0.4);
-        }
+        // =========================================================
+        // HARİTAYI ORTALAMA VE KENAR BOŞLUKLARI (PADDING) AYARI
+        // =========================================================
+        const mobilMi = window.innerWidth <= 600;
+
+        map.fitBounds(geojsonLayer.getBounds(), {
+            paddingTopLeft: mobilMi ? [20, 110] : [40, 40],     // Üst ve sol boşluk
+            paddingBottomRight: mobilMi ? [20, 140] : [40, 40], // Alt ve sağ boşluk
+            maxZoom: 12                                         // Aşırı yakınlaşmayı engeller
+        });
 
         if (mesaj) mesaj.innerHTML = "";
     })
@@ -183,7 +188,6 @@ fetch("KOY.geojson")
         console.error(err);
         if (soruYazi) soruYazi.innerHTML = " Köyler yüklenemedi ";
     });
-
 // --- KOMŞULUK DERECESİ BULMA (GLOBAL SCOPE) ---
 function komsulukDerecesiBul(baslangicLayer, hedefLayer) {
     if (baslangicLayer === hedefLayer) return 0;
