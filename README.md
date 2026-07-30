@@ -6,4 +6,4 @@ Muğla'nın Milas ilçesine bağlı köyleri (Mahaleler-Büyükşehir Yasası) b
 Oyun sizlerin, kısıtlı süre içerisinde rastgele sorulan köy'ler ile (Mahalle?) Milas'ın köylerine ne kadar hakim olup olmadığınızı sınamaktadır ve her yanlış veya doğru cevap kayıt altına alınarak puan tablosu oluşturulmaktadır. Burada her bir köy için oyuncunun 3 tahmin hakkı bulunup her yanlış cevap "-1" puan, doğru cevaplar ise "+5" puan ile puanlandırma yapılmaktadır ve poligon sınırlarından komşuluk ilişkileri göz önüne alınarak yanlış cevaplar için bir "sıcak-soğuk oyunu" fonksiyonu görselleştirilmiştir.
 İyi eğlenceler...
 
-Ozan Yilmaz
+Ozan Yılmaz
