@@ -593,28 +593,32 @@ button {
     display: flex;
 }
 
+/* BAŞLANGIÇ LİDERLİK TABLOSU (RESPONSIVE)*/
+
 #baslangicLeaderboard {
     position: absolute;
-    top: 175px;
+    top: 140px;
     right: 20px;
-    z-index: 1000;
+    z-index: 2500;
     width: 280px;
     max-height: calc(100vh - 240px);
     overflow-y: auto;
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.15);
     border-radius: 12px;
     padding: 12px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
 @media (max-width: 600px) {
     #baslangicLeaderboard {
-        top: 175px;
-        right: 50%;
+        top: 180px;
+        left: 50%;
+        right: auto;
         transform: translateX(-50%);
-        width: 90%;
-        max-height: 180px;
+        width: 88%;
+        max-height: 200px;
+        z-index: 2500;
     }
 }
