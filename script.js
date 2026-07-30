@@ -170,12 +170,16 @@ fetch("KOY.geojson")
                 });
             }
         }).addTo(map);
-        map.fitBounds(geojsonLayer.getBounds());
+        const isMobile = window.innerWidth <= 600;
+        map.fitBounds(geojsonLayer.getBounds(), {
+            paddingBottomRight: isMobile ? [0, 190] : [0, 0]
+        });
+
         if (mesaj) mesaj.innerHTML = "";
     })
     .catch(err => {
         console.error(err);
-        if (soruYazi) soruYazi.innerHTML = "❌ KOY.geojson yüklenemedi! Sunucu kullanıp kullanmadığınızı kontrol edin.";
+        if (soruYazi) soruYazi.innerHTML = " Köyler yüklenemedi ";
     });
 
 // --- KOMŞULUK DERECESİ BULMA (GLOBAL SCOPE) ---
