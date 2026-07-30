@@ -1,6 +1,4 @@
-/* ===========================
-   GENEL
-=========================== */
+/* GENEL */
 
 *{
     margin:0;
@@ -19,23 +17,17 @@ body{
     overflow:hidden;
 }
 
-
-/* ===========================
-   ANA ALAN
-=========================== */
+/* ANA ALAN*/
 
 #oyun {
     display: flex;
     flex-direction: column;
     width: 100%;
-    /* Safari ve mobil tarayıcı çubuklarının taşmasını engellemek için dinamik yükseklik */
     height: 100vh;
     height: 100dvh; 
 }
 
-/* ===========================
-   ÜST PANEL
-=========================== */
+/* ÜST PANEL */
 
 #ustPanel{
     background:#1f2937;
@@ -83,10 +75,7 @@ body{
     font-weight:bold;
 }
 
-
-/* ===========================
-   SORU PANELİ
-=========================== */
+/* SORU PANELİ */
 
 #soruPanel{
     background:white;
@@ -100,65 +89,48 @@ body{
     font-size:28px;
 }
 
-
-/* ===========================
-   HARİTA
-=========================== */
+/* HARİTA */
 
 #map{
     flex:1;
     width:100%;
 }
 
-
-/* ===========================
-   ALT PANEL
-=========================== */
+/* ALT PANEL */
 
 #altPanel {
     background: #1f2937;
     padding: 15px;
     display: flex;
-    justify-content: center; /* Butonları tam yatay merkezde toplar */
+    justify-content: center;
     align-items: center;
-    position: relative;      /* İmza ve mesajın konumlanması için şart */
+    position: relative;
     z-index: 2000; 
     min-height: 70px;
 }
 
-/* Oyun içi Doğru/Yanlış mesajlarının buton ortalamasını bozmaması için sağa sabitliyoruz */
-#mesaj {
-    position: absolute;
-    right: 25px;
-    color: white;
-    font-size: 20px;
-    font-weight: bold;
-}
-
-/* Sol alt köşe için şık, şeffaf imza */
 .footer-imza {
     position: absolute;
     left: 25px;
-    color: rgba(255, 255, 255, 0.35); /* Sade ve azıcık şeffaf beyaz */
+    color: rgba(255, 255, 255, 0.35);
     font-size: 12px;
-    pointer-events: none; /* Tıklamalara asla engel olmaz, haritayı engellemez */
+    pointer-events: none;
     letter-spacing: 0.5px;
 }
 
-/* Telefonlar ve küçük ekranlar için hizalama düzenlemesi */
 @media(max-width:600px){
     #altPanel {
         flex-direction: column;
         gap: 10px;
-        padding: 15px 10px 40px 10px; /* Alttan imza taşmasın diye pay verdik */
+        padding: 15px 10px 40px 10px;
     }
     #mesaj {
-        position: static; /* Mobilde yazılar alt alta düzgünce gelsin diye */
+        position: static;
         margin-top: 5px;
     }
     .footer-imza {
         left: 50%;
-        transform: translateX(-50%); /* Mobilde imzayı tam ortalar */
+        transform: translateX(-50%);
         bottom: 8px;
         width: 100%;
         text-align: center;
@@ -172,13 +144,8 @@ button {
     border-radius: 8px;
     font-size: 17px;
     transition: .3s;
-    /* Tıklamayı Safari'de zorunlu hale getirmek için */
     position: relative;
     z-index: 2001;
-}
-
-button:hover{
-    transform:scale(1.05);
 }
 
 #baslatBtn{
@@ -186,17 +153,21 @@ button:hover{
     color:white;
 }
 
-#baslatBtn:hover{
-    background:#15803d;
-}
-
 #yenidenBtn{
     background:#2563eb;
     color:white;
 }
 
-#yenidenBtn:hover{
-    background:#1d4ed8;
+@media (hover: hover) {
+    button:hover{
+        transform: scale(1.05);
+    }
+    #baslatBtn:hover{
+        background: #15803d;
+    }
+    #yenidenBtn:hover{
+        background: #1d4ed8;
+    }
 }
 
 #mesaj{
@@ -205,10 +176,7 @@ button:hover{
     font-weight:bold;
 }
 
-
-/* ===========================
-   OYUN SONU
-=========================== */
+/* OYUN SONU */
 
 #oyunSonu{
     position:fixed;
@@ -226,9 +194,13 @@ button:hover{
 
 .popup{
     width:420px;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
     background:white;
     border-radius:15px;
-    padding:35px;
+    padding:25px;
     text-align:center;
     box-shadow:0 10px 30px rgba(0,0,0,.35);
 }
@@ -258,10 +230,7 @@ button:hover{
     background:#15803d;
 }
 
-
-/* ===========================
-   LEAFLET
-=========================== */
+/* LEAFLET */
 
 .leaflet-container{
     background:#ddd;
@@ -271,10 +240,7 @@ button:hover{
     font-size:16px;
 }
 
-
-/* ===========================
-   MOBİL
-=========================== */
+/* MOBİL */
 
 @media(max-width:900px){
     #ustPanel{
@@ -314,13 +280,11 @@ button:hover{
     }
     button{
         width:100%;
-        /* Mobilde butonları biraz kibarlaştırıyoruz ki panel ekrandan taşmasın */
         padding: 10px 15px;
         font-size: 15px;
     }
     #altPanel{
         flex-direction:column;
-        /* Mobilde alt panel çok kalınlaşmasın diye boşluğu azıcık daraltıyoruz */
         gap: 10px;
         padding: 10px;
     }
@@ -336,22 +300,19 @@ button:hover{
     border-radius:8px;
 }
 
-/* ======================================
-   EFEKT KATMANI VE ANİMASYONLAR
-====================================== */
+/* EFEKT KATMANI VE ANİMASYONLAR */
 
 #efektKatmani {
     position: fixed;
     inset: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 99999;           /* Her şeyin en üstünde durmasını sağlar */
-    pointer-events: none;     /* Alttaki haritaya tıklayabilmeniz için şarttır */
+    z-index: 99999;
+    pointer-events: none;
     box-shadow: inset 0 0 0px 0px transparent;
     transition: box-shadow 0.1s ease, background-color 0.1s ease;
 }
 
-/* Doğru Bilince: Kalın yeşil iç gölge patlaması */
 .flash-dogru-aktif {
     animation: neonYesil 0.5s ease-out forwards;
 }
@@ -370,7 +331,6 @@ button:hover{
     }
 }
 
-/* Yanlış Bilince: Kalın kırmızı iç gölge patlaması */
 .flash-yanlis-aktif {
     animation: neonKirmizi 0.5s ease-out forwards;
 }
@@ -389,7 +349,6 @@ button:hover{
     }
 }
 
-/* Tüm oyun alanını sertçe sallayan animasyon */
 .shake-aktif {
     animation: sertSallanma 0.4s cubic-bezier(.36,.07,.19,.97) both;
 }
@@ -402,11 +361,8 @@ button:hover{
     40%, 60% { transform: translate3d(18px, 10px, 0); }
 }
 
-/* ======================================
-   MODERN OYUN SONU PANELİ TASARIMI
-====================================== */
+/* OYUN SONU PANELİ */
 
-/* Ana popup içeriğinin kaydırma alanı */
 .game-over-scroll {
     text-align: left; 
     font-size: 15px; 
@@ -417,7 +373,6 @@ button:hover{
     margin-top: 15px;
 }
 
-/* Scrollbar tasarımı */
 .game-over-scroll::-webkit-scrollbar {
     width: 6px;
 }
@@ -433,7 +388,6 @@ button:hover{
     background: #a8a8a8;
 }
 
-/* İstatistik satırları */
 .stats-row {
     display: flex;
     justify-content: space-between;
@@ -442,7 +396,6 @@ button:hover{
     border-bottom: 1px solid #f3f4f6;
 }
 
-/* Köy Etiket Konteyneri (İç kaydırma çubukları kesinlikle engellendi) */
 .koy-konteyner {
     display: flex;
     flex-wrap: wrap;
@@ -455,7 +408,6 @@ button:hover{
     overflow: visible !important;  
 }
 
-/* Doğru Bilinen Köy Arka Plan Altlığı */
 .bg-dogru-kutusu { 
     background: #f0fdf4; 
     border-color: #bbf7d0; 
@@ -470,7 +422,6 @@ button:hover{
     font-weight: 500;
 }
 
-/* Bulunamayan Köy Arka Plan Altlığı */
 .bg-yanlis-kutusu { 
     background: #fef2f2; 
     border-color: #fecaca; 
@@ -491,9 +442,8 @@ button:hover{
     margin-top: 15px;
 }
 
-/* ==========================================
-   SKOR TABLOSU (LEADERBOARD) YENİ STİLLERİ
-========================================== */
+/* SKOR TABLOSU (LEADERBOARD) */
+
 .leaderboard-title {
     margin-top: 25px;
     margin-bottom: 10px;
@@ -527,7 +477,6 @@ button:hover{
     text-align: left;
 }
 
-/* En yüksek skora sahip 1. oyuncuya özel altın efekti */
 .leaderboard-item:nth-child(1) {
     background: #fef3c7;
     border-color: #fcd34d;
@@ -560,28 +509,25 @@ button:hover{
     color: #9ca3af;
 }
 
-/* ==========================================
-   BİLEMEYEN KÖY ETİKETİ STİLİ (SADE/ŞEFFAF)
-========================================== */
+/* KÖY ETİKETİ */
+
 .leaflet-tooltip.bilemediEtiket {
-    background: transparent !important; /* Arka plan kutusunu/tamponu kaldırır */
-    border: none !important;            /* Çerçeveyi kaldırır */
-    box-shadow: none !important;        /* Kutu gölgesini kaldırır */
-    color: #ffffff !important;          /* Yazı rengi */
-    font-size: 11px !important;         /* Yazı boyutunu küçültür */
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #ffffff !important;
+    font-size: 11px !important;
     font-weight: bold !important;
-    text-shadow: 1px 1px 2px #000000;   /* Harita üstünde okunabilmesi için ince siyah gölge */
+    text-shadow: 1px 1px 2px #000000;
     padding: 0 !important;
 }
 
-/* Etiketin küçük ok (pointer) işaretini gizler */
 .leaflet-tooltip.bilemediEtiket::before {
     display: none !important;
 }
 
-/* ==========================================
-   BAŞLANGIÇ LİDERLİK TABLOSU STİLLERİ
-========================================== */
+/* BAŞLANGIÇ LİDERLİK TABLOSU */
+
 .baslangic-leaderboard-kutusu {
     background: #ffffff;
     border: 1px solid #e5e7eb;
@@ -619,7 +565,6 @@ button:hover{
     background: #f3f4f6;
 }
 
-/* 1. Oyuncunun Altın Efekti */
 .baslangic-item.birinci {
     background: #fef3c7;
     border-color: #fcd34d;
@@ -635,7 +580,7 @@ button:hover{
 }
 
 .baslangic-item-detay {
-    display: none; /* Varsayılan olarak kapalı */
+    display: none;
     margin-top: 6px;
     padding-top: 6px;
     border-top: 1px dashed #d1d5db;
@@ -644,7 +589,32 @@ button:hover{
     justify-content: space-between;
 }
 
-/* Tıklanınca detayları açar */
 .baslangic-item.acik .baslangic-item-detay {
     display: flex;
+}
+
+#baslangicLeaderboard {
+    position: absolute;
+    top: 175px;
+    right: 20px;
+    z-index: 1000;
+    width: 280px;
+    max-height: calc(100vh - 240px);
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 600px) {
+    #baslangicLeaderboard {
+        top: 175px;
+        right: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-height: 180px;
+    }
 }
