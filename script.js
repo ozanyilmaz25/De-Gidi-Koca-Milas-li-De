@@ -170,11 +170,12 @@ fetch("KOY.geojson")
                 });
             }
         }).addTo(map);
-        const isMobile = window.innerWidth <= 600;
-        map.fitBounds(geojsonLayer.getBounds(), {
-            paddingTopLeft: isMobile ? [0, 40] : [0, 0],
-            paddingBottomRight: isMobile ? [0, 190] : [0, 0]
-        });
+
+        map.fitBounds(geojsonLayer.getBounds());
+        if (window.innerWidth <= 600) {
+            const merkez = map.getCenter();
+            map.setView([merkez.lat - 0.05, merkez.lng], map.getZoom() - 0.2);
+        }
 
         if (mesaj) mesaj.innerHTML = "";
     })
