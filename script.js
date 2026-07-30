@@ -23,7 +23,7 @@ let sorulmayanKoyler = [];
 let puan = 0;
 let soruNo = 1;
 let oyunBasladi = false;
-let kalanSure = 1200; // 20 dakika 00 saniye
+let kalanSure = 1200; // 20 dakika
 let timer = null;
 let dogruSayisi = 0;
 let yanlisSayisi = 0;
@@ -42,17 +42,13 @@ let source = null;
 let filterNode = null;
 let musicGainNode = null; 
 
-// Saniyeyi Dakika:Saniye (00:00) Formatına Çeviren Yardımcı Fonksiyon
 function sureFormatla(saniye) {
     let dk = Math.floor(saniye / 60);
     let sn = saniye % 60;
-    if (sn < 10) {
-        sn = "0" + sn;
-    }
+    if (sn < 10) sn = "0" + sn;
     return dk + ":" + sn;
 }
 
-// Ses için filtre katmanı
 function sesSisteminiKur() {
     try {
         if (audioCtx) return; 
@@ -72,11 +68,10 @@ function sesSisteminiKur() {
         musicGainNode.connect(filterNode);
         filterNode.connect(audioCtx.destination);
     } catch (e) {
-        console.log("Ses sistemi kurulurken bir hata oluştu, oyun sese bağımlı olmadan devam ediyor:", e);
+        console.log("Ses sistemi hatası:", e);
     }
 }
 
-// DOĞRU CEVAP SES EFEKTİ
 function playRetroWinSound() {
     if (!audioCtx) return;
     try {
@@ -117,7 +112,6 @@ function playRetroWinSound() {
 // Haritayı Oluştur
 map = L.map("map", { zoomControl: true }).setView([37.32, 27.78], 10);
 
-// Uydu Haritası
 L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
     maxZoom: 20,
     attribution: "© Esri"
@@ -145,68 +139,20 @@ function hoverBitis(e) {
     geojsonLayer.resetStyle(layer);
 }
 
-// ======================================
 // YOL KATMANLARI
-// ======================================
-
-// PRIMARY YOL
 fetch("anayol.geojson")
-    .then(response => response.json())
+    .then(r => r.json())
     .then(data => {
-        // Alt Katman:
-        L.geoJSON(data, {
-            style: {
-                color: "#000000",
-                weight: 7,
-                opacity: 0.95,
-                lineCap: "round",
-                lineJoin: "round"
-            }
-        }).addTo(map);
+        L.geoJSON(data, { style: { color: "#000000", weight: 7, opacity: 0.95, lineCap: "round", lineJoin: "round" } }).addTo(map);
+        L.geoJSON(data, { style: { color: "#2E8B60", weight: 3.5, opacity: 1.0, lineCap: "round", lineJoin: "round" } }).addTo(map);
+    }).catch(err => console.error("Anayol yüklenirken hata:", err));
 
-        // Üst Katman:
-        L.geoJSON(data, {
-            style: {
-                color: "#2E8B60",
-                weight: 3.5,
-                opacity: 1.0,
-                lineCap: "round",
-                lineJoin: "round"
-            }
-        }).addTo(map);
-    })
-    .catch(err => console.error("Anayol yüklenirken hata:", err));
-
-
-// SECONDARY YOL
 fetch("secondary.geojson")
-    .then(response => response.json())
+    .then(r => r.json())
     .then(data => {
-        // Alt Katman:
-        L.geoJSON(data, {
-            style: {
-                color: "#000000",
-                weight: 5,
-                opacity: 0.9,
-                lineCap: "round",
-                lineJoin: "round"
-            }
-        }).addTo(map);
-
-        // Üst Katman:
-        L.geoJSON(data, {
-            style: {
-                color: "#06b6d4",
-                weight: 2.2,
-                opacity: 1.0,
-                lineCap: "round",
-                lineJoin: "round"
-            }
-        }).addTo(map);
-    })
-    .catch(err => console.error("Secondary yol yüklenirken hata:", err));
-
-
+        L.geoJSON(data, { style: { color: "#000000", weight: 5, opacity: 0.9, lineCap: "round", lineJoin: "round" } }).addTo(map);
+        L.geoJSON(data, { style: { color: "#06b6d4", weight: 2.2, opacity: 1.0, lineCap: "round", lineJoin: "round" } }).addTo(map);
+    }).catch(err => console.error("Secondary yol yüklenirken hata:", err));
 
 // KÖY SINIRLARI
 fetch("KOY.geojson")
@@ -229,12 +175,58 @@ fetch("KOY.geojson")
     })
     .catch(err => {
         console.error(err);
-        if (soruYazi) soruYazi.innerHTML = "❌ KOY.geojson yüklenemedi! Sunucu (Live Server) kullanıp kullanmadığınızı kontrol edin.";
+        if (soruYazi) soruYazi.innerHTML = "❌ KOY.geojson yüklenemedi! Sunucu kullanıp kullanmadığınızı kontrol edin.";
     });
+
+// --- KOMŞULUK DERECESİ BULMA (GLOBAL SCOPE) ---
+function komsulukDerecesiBul(baslangicLayer, hedefLayer) {
+    if (baslangicLayer === hedefLayer) return 0;
+
+    function komsuMu(l1, l2) {
+        try {
+            return l1.getBounds().intersects(l2.getBounds());
+        } catch(e) { return false; }
+    }
+
+    let ziyaretEdilenler = new Set();
+    let kuyruk = [{ layer: baslangicLayer, adim: 0 }];
+    ziyaretEdilenler.add(baslangicLayer);
+
+    let bulunanAdim = -1;
+
+    while (kuyruk.length > 0) {
+        let mevcut = kuyruk.shift();
+
+        if (mevcut.layer === hedefLayer) {
+            bulunanAdim = mevcut.adim;
+            break;
+        }
+
+        if (mevcut.adim > 30) break;
+
+        let komsular = tumKoyler.filter(k => !ziyaretEdilenler.has(k.layer) && komsuMu(mevcut.layer, k.layer));
+        
+        for (let komsu of komsular) {
+            ziyaretEdilenler.add(komsu.layer);
+            kuyruk.push({ layer: komsu.layer, adim: mevcut.adim + 1 });
+        }
+    }
+
+    if (bulunanAdim === -1) bulunanAdim = 30;
+
+    let araKoySayisi = Math.max(0, bulunanAdim - 1);
+
+    if (araKoySayisi === 0) return 1;
+    else if (araKoySayisi === 1) return 2;
+    else if (araKoySayisi === 2) return 3;
+    else if (araKoySayisi === 3) return 4;
+    else if (araKoySayisi === 4) return 5;
+    else if (araKoySayisi === 5) return 6;
+    else return 7;
+}
 
 function yeniSoru() {
     yanlisKoylerListesi.forEach(layer => {
-        // Hakkı bitip turuncu olan köylerin stilini sıfırlama, haritada sabit kalsınlar
         if (!layer.hakkiBitti) {
             geojsonLayer.resetStyle(layer);
             layer.on("mouseout", hoverBitis);
@@ -250,7 +242,6 @@ function yeniSoru() {
 
     let rastgele = Math.floor(Math.random() * sorulmayanKoyler.length);
     aktifKoy = sorulmayanKoyler[rastgele];
-    // Sorulan köy listeden çıkarılıyor, böylece her oyunda yalnızca 1 kez sorulur
     sorulmayanKoyler.splice(rastgele, 1);
 
     soruYazi.innerHTML = "<b>" + aktifKoy.ad + "</b> köyünü bulun. <span style='color: #ffcc00;'>(Kalan Hak: " + aktifKoyHakki + ")</span>";
@@ -258,20 +249,15 @@ function yeniSoru() {
 }
 
 function oyunuBaslat() {
+    const baslangicTablo = document.getElementById("baslangicLeaderboard");
+    if (baslangicTablo) baslangicTablo.style.display = "none";
 
-    // Skor tablosunu oyun başladığında gizle
-const baslangicTablo = document.getElementById("baslangicLeaderboard");
-if (baslangicTablo) baslangicTablo.style.display = "none";
-
-    if (!audioCtx) {
-        sesSisteminiKur();
-    }
-    if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume();
-    }
+    if (!audioCtx) sesSisteminiKur();
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
 
     tumKoyler.forEach(koy => {
         koy.layer.dogruBilindi = false;
+        koy.layer.hakkiBitti = false;
         geojsonLayer.resetStyle(koy.layer);
     });
 
@@ -281,12 +267,8 @@ if (baslangicTablo) baslangicTablo.style.display = "none";
             bgMusic.playbackRate = 1.0; 
             if (filterNode) filterNode.frequency.setValueAtTime(20000, audioCtx.currentTime); 
             if (musicGainNode) musicGainNode.gain.setValueAtTime(1.0, audioCtx.currentTime);
-            bgMusic.play().catch(error => {
-                console.log("Müzik çalma engellendi:", error);
-            });
-        } catch(e) {
-            console.log("Müzik oynatılamadı:", e);
-        }
+            bgMusic.play().catch(error => console.log("Müzik çalma engellendi:", error));
+        } catch(e) { console.log("Müzik oynatılamadı:", e); }
     }
 
     puan = 0;
@@ -316,6 +298,10 @@ if (baslangicTablo) baslangicTablo.style.display = "none";
 if (baslatBtn) baslatBtn.addEventListener("click", oyunuBaslat);
 if (yenidenBtn) yenidenBtn.addEventListener("click", () => location.reload());
 
+// ======================================
+// KÖY KONTROL FONKSİYONU
+// ======================================
+
 function koyKontrol(feature, layer) {
     if (!aktifKoy || tiklamaKilitli) return; 
     const secilenKoy = feature.properties.AD;
@@ -326,6 +312,7 @@ function koyKontrol(feature, layer) {
     const oyunAlani = document.getElementById("oyun");
 
     if (secilenKoy === aktifKoy.ad) {
+        // DOĞRU CEVAP
         puan += 5; 
         dogruSayisi++;
         bilinenKoylerListesi.push(aktifKoy.ad); 
@@ -338,9 +325,7 @@ function koyKontrol(feature, layer) {
 
         if (efektKatmani) {
             efektKatmani.classList.add("flash-dogru-aktif");
-            setTimeout(() => {
-                efektKatmani.classList.remove("flash-dogru-aktif");
-            }, 500);
+            setTimeout(() => efektKatmani.classList.remove("flash-dogru-aktif"), 500);
         }
 
         layer.bindTooltip("Aferin len", { 
@@ -354,26 +339,51 @@ function koyKontrol(feature, layer) {
 
         setTimeout(() => {
             layer.setStyle({ color: "#00aa00", fillColor: "#00ff00", fillOpacity: 0.55, weight: 3 });
+            if (layer.getTooltip()) layer.unbindTooltip();
             soruNo++;
             yeniSoru();
             tiklamaKilitli = false; 
         }, 1000);
 
-        setTimeout(() => {
-            layer.unbindTooltip();
-        }, 3000);
-
     } else {
+        // YANLIŞ CEVAP
         aktifKoyHakki--; 
         puan -= 1; 
         yanlisSayisi++;
         puanYazi.innerHTML = puan;
 
+        const derece = komsulukDerecesiBul(layer, aktifKoy.layer);
+
+        let dinamikRenk = "#3b0764"; 
+        let mesafeMesaji = `Bayağı uzaktasın bizim oğlan!`;
+
+        if (derece === 1) {
+            dinamikRenk = "#27a54d";
+            mesafeMesaji = `Ülen ne arip durun yanndasın`;
+        } else if (derece === 2) {
+            dinamikRenk = "#2da3c7";
+            mesafeMesaji = `Heç uzağa bakma, ende!`;
+        } else if (derece === 3) {
+            dinamikRenk = "#0e64e4";
+            mesafeMesaji = `He huraya doru azcık sallanıve, köyü göcen zaten`;
+        } else if (derece === 4) {
+            dinamikRenk = "#57098b";
+            mesafeMesaji = `Endi yoldan heç şaşmadan düz gitcen`;
+        } else if (derece === 5) {
+            dinamikRenk = "#e71ee7";
+            mesafeMesaji = `En eysi sen hurdan dön`;
+        } else if (derece === 6) {
+            dinamikRenk = "#e60a70";
+            mesafeMesaji = `Pek yanlış gelmişin bizim oğlan`;
+        } else if (derece === 7) {
+            dinamikRenk = "#810a14";
+            mesafeMesaji = `Gözünü sevdiğim, hiç sormadın mı yolda?`;
+        }
+
         if (bgMusic && filterNode && audioCtx) {
             try {
                 bgMusic.playbackRate = 1.0; 
                 filterNode.frequency.setValueAtTime(1200, audioCtx.currentTime); 
-                
                 setTimeout(() => {
                     if (filterNode) filterNode.frequency.exponentialRampToValueAtTime(20000, audioCtx.currentTime + 0.25);
                 }, 1000); 
@@ -392,23 +402,22 @@ function koyKontrol(feature, layer) {
         yanlisKoylerListesi.push(layer);
 
         layer.setStyle({
-            color: "#8b0000",      
-            fillColor: "#ff0000",  
+            color: dinamikRenk,      
+            fillColor: dinamikRenk,  
             fillOpacity: 0.65,     
-            weight: 4
+            weight: 3.5
         });
 
         layer.off("mouseout", hoverBitis);
 
         if (aktifKoyHakki > 0) {
-            if (mesaj) mesaj.innerHTML = "❌ Yanlış! (-1 Puan)";
+            if (mesaj) mesaj.innerHTML = mesafeMesaji;
             soruYazi.innerHTML = "📍 <b>" + aktifKoy.ad + "</b> köyünü bulun. <span style='color: #ffcc00;'>(Kalan Hak: " + aktifKoyHakki + ")</span>";
         } else {
             bilinemeyenKoylerListesi.push(aktifKoy.ad); 
-            if (mesaj) mesaj.innerHTML = "💥 Hakkınız Bitti!";
+            if (mesaj) mesaj.innerHTML = "💥 Hakkınız Bitti! (" + aktifKoy.ad + ")";
             tiklamaKilitli = true; 
 
-            // Hak Bittiğinde: Doğru köy poligonu turuncuya boyanır ve haritada kilitlenir
             const dogruKoyLayer = aktifKoy.layer;
             dogruKoyLayer.hakkiBitti = true; 
             dogruKoyLayer.off("click");
@@ -416,8 +425,8 @@ function koyKontrol(feature, layer) {
             dogruKoyLayer.off("mouseout", hoverBitis);
 
             dogruKoyLayer.setStyle({
-                color: "#ea580c",       // Turuncu çerçeve
-                fillColor: "#f97316",   // Turuncu dolgu
+                color: "#ea580c",       
+                fillColor: "#f97316",   
                 fillOpacity: 0.60,
                 weight: 3
             });
@@ -565,16 +574,12 @@ function oyunBitir() {
         if (yeniBtn) yeniBtn.onclick = () => location.reload();
     }
 
-const baslangicTablo = document.getElementById("baslangicLeaderboard");
-if (baslangicTablo) baslangicTablo.style.display = "block";
+    const baslangicTablo = document.getElementById("baslangicLeaderboard");
+    if (baslangicTablo) baslangicTablo.style.display = "block";
 
-baslangicLeaderboardGuncelle();
-
+    baslangicLeaderboardGuncelle();
 }
 
-// ==========================================
-// BAŞLANGIÇ SKOR TABLOSU
-// ==========================================
 function baslangicLeaderboardGuncelle() {
     const listeKutusu = document.getElementById("baslangicLeaderboardListesi");
     if (!listeKutusu) return;
@@ -611,5 +616,4 @@ function baslangicLeaderboardGuncelle() {
     }).join("");
 }
 
-// Sayfa yüklendiğinde çalıştır
 baslangicLeaderboardGuncelle();
