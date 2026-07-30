@@ -624,3 +624,20 @@ button {
         overflow-y: auto;
     }
 }
+
+    header, #header, .header, #ustPanel {
+        padding: 6px 10px !important;
+    }
+
+    header h1, #header h1, .header h1, #ustPanel h1, h1 {
+        font-size: 1.1rem !important;
+        margin: 0 0 2px 0 !important;
+        line-height: 1.2 !important;
+    }
+
+    header p, #header p, .header p, #ustPanel p, p {
+        font-size: 0.75rem !important;
+        margin: 0 !important;
+        line-height: 1.1 !important;
+    }
+}
